@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="tr">
 <head>
@@ -30,24 +29,11 @@
       padding: 24px;
     }
 
-    .wrap {
-      width: min(1100px, 96vw);
-    }
+    .wrap { width: min(1100px, 96vw); }
 
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    h1 {
-      margin: 0 0 8px;
-      font-size: clamp(22px, 2.6vw, 34px);
-      letter-spacing: .2px;
-    }
-    p.lead {
-      margin: 0;
-      color: var(--muted);
-      font-size: clamp(14px, 1.6vw, 16px);
-    }
+    header { text-align: center; margin-bottom: 20px; }
+    h1 { margin: 0 0 8px; font-size: clamp(22px, 2.6vw, 34px); letter-spacing: .2px; }
+    p.lead { margin: 0; color: var(--muted); font-size: clamp(14px, 1.6vw, 16px); }
 
     .card {
       background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
@@ -63,26 +49,17 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
-    @media (min-width: 640px) { /* sm */
-      .grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (min-width: 900px) {
-      .grid { grid-template-columns: repeat(4, 1fr); }
-    }
+    @media (min-width: 640px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 900px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
     a.week-btn {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
       padding: 14px 16px;
       background: linear-gradient(180deg, #0b1220, #0b1322);
       border: 1px solid rgba(148,163,184,.18);
       border-radius: 14px;
-      text-decoration: none;
-      color: var(--text);
-      font-weight: 600;
-      letter-spacing: .2px;
+      text-decoration: none; color: var(--text);
+      font-weight: 600; letter-spacing: .2px;
       transition: transform .08s ease, border-color .15s ease, box-shadow .15s ease;
       outline: none;
     }
@@ -96,37 +73,20 @@
       border-color: var(--accent-2);
     }
 
-    .label {
-      display: flex;
-      flex-direction: column;
-    }
-    .label .title {
-      font-size: 16px;
-    }
-    .label .sub {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 500;
-    }
+    .label { display: flex; flex-direction: column; }
+    .label .title { font-size: 16px; }
+    .label .sub { font-size: 12px; color: var(--muted); font-weight: 500; }
 
     .arrow {
-      width: 22px; height: 22px; flex: 0 0 22px;
-      border-radius: 50%;
+      width: 22px; height: 22px; flex: 0 0 22px; border-radius: 50%;
       display: grid; place-items: center;
       border: 1px solid rgba(56,189,248,.4);
       background: radial-gradient(circle at 50% 50%, rgba(56,189,248,.22), rgba(56,189,248,.05));
     }
     .arrow svg { width: 14px; height: 14px; }
-    .footer {
-      margin-top: 14px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .footer code {
-      background: rgba(148,163,184,.12);
-      padding: 2px 6px; border-radius: 6px;
-    }
+
+    .footer { margin-top: 14px; text-align: center; color: var(--muted); font-size: 12px; }
+    .footer code { background: rgba(148,163,184,.12); padding: 2px 6px; border-radius: 6px; }
   </style>
 </head>
 <body>
@@ -135,60 +95,61 @@
       <h1>Ödev Yönlendirme Paneli</h1>
       <p class="lead">Haftanı seç ve ilgili ödev sayfasına git.</p>
     </header>
+
+    <!-- EKSİK OLAN KISIM: Haftaların ekleneceği kapsayıcı -->
+    <div class="card">
+      <div class="grid" id="weeks" role="list" aria-label="Hafta listesi"></div>
+      <div class="footer">Toplam <strong>13</strong> hafta listelenir. Yol şablonu: <code>odevler/hafta-${'{n}'}.html</code></div>
+    </div>
   </div>
 
   <script>
-    /**
-     * === YAPILANDIRMA ===
-     * basePath: Ödev sayfalarının klasör yolu (sonunda '/' bulunsun ya da boş bırakın)
-     * filePattern: Dosya adı şablonu. ${n} haftayı temsil eder.
-     *   Örnekler:
-     *     - "hafta-${n}.html"  => .../hafta-1.html
-     *     - "week${n}/index.html" => .../week1/index.html
-     *     - "odev-${n}.html"
-     */
-    const basePath   = "odevler/";       // Örn: "odevler/" veya "" (kök)
+    // === YAPILANDIRMA ===
+    const basePath    = "odevler/";       // Örn: "odevler/" veya "" (kök)
     const filePattern = "hafta-${n}.html";
     const TOTAL_WEEKS = 13;
 
     const container = document.getElementById("weeks");
+    // Güvenlik: container bulunamazsa sessizce çık
+    if (!container) {
+      console.error('Hafta kapsayıcısı bulunamadı: id="weeks"');
+    } else {
+      // Haftaları oluştur
+      for (let n = 1; n <= TOTAL_WEEKS; n++) {
+        const href = basePath + filePattern.replace("${n}", n);
 
-    // Haftaları oluştur
-    for (let n = 1; n <= TOTAL_WEEKS; n++) {
-      const href = basePath + filePattern.replace("${n}", n);
+        const a = document.createElement("a");
+        a.href = href;
+        a.className = "week-btn";
+        a.setAttribute("role", "listitem");
+        a.setAttribute("aria-label", `Hafta ${n} ödevine git`);
 
-      const a = document.createElement("a");
-      a.href = href;
-      a.className = "week-btn";
-      a.setAttribute("role", "listitem");
-      a.setAttribute("aria-label", `Hafta ${n} ödevine git`);
+        const label = document.createElement("div");
+        label.className = "label";
 
-      const label = document.createElement("div");
-      label.className = "label";
+        const title = document.createElement("span");
+        title.className = "title";
+        title.textContent = `Hafta ${n}`;
 
-      const title = document.createElement("span");
-      title.className = "title";
-      title.textContent = `Hafta ${n}`;
+        const sub = document.createElement("span");
+        sub.className = "sub";
+        sub.textContent = `Ödev sayfası: ${href}`;
 
-      const sub = document.createElement("span");
-      sub.className = "sub";
-      sub.textContent = `Ödev sayfası: ${href}`;
+        label.appendChild(title);
+        label.appendChild(sub);
 
-      label.appendChild(title);
-      label.appendChild(sub);
+        const arrow = document.createElement("div");
+        arrow.className = "arrow";
+        arrow.innerHTML = `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        `;
 
-      const arrow = document.createElement("div");
-      arrow.className = "arrow";
-      arrow.innerHTML = `
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      `;
-
-      a.appendChild(label);
-      a.appendChild(arrow);
-
-      container.appendChild(a);
+        a.appendChild(label);
+        a.appendChild(arrow);
+        container.appendChild(a);
+      }
     }
   </script>
 </body>
